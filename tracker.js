@@ -12,6 +12,8 @@ connection.connect(function(err) {
   if (err) throw err;
 });
 addArray = [];
+roleArray = [];
+depArray = [];
 
 //Inquirer
 ("use strict");
@@ -62,11 +64,50 @@ function view() {
       if (response === "View all employees") {
         console.log("Here are the employees");
         //Welcome();
+        afterConnection();
+        //});
+
+        function afterConnection() {
+          let sql = "SELECT * FROM employee";
+          //WHERE (title = 'Marketing Intern' OR salary > 50000) ORDER BY salary ASC";
+          connection.query(sql, function(err, res) {
+            if (err) throw err;
+            //console.log(res);
+            console.log("\n");
+            console.table(res);
+          });
+        }
       } else if (response === "View all roles") {
         console.log("Here are the roles");
+        afterConnection();
+        //});
+
+        function afterConnection() {
+          let sql = "SELECT * FROM role";
+          //WHERE (title = 'Marketing Intern' OR salary > 50000) ORDER BY salary ASC";
+          connection.query(sql, function(err, res) {
+            if (err) throw err;
+            //console.log(res);
+            console.log("\n");
+            console.table(res);
+          });
+        }
         //encounter2a();
       } else if (response === "View all departments") {
         console.log("Here are the departments");
+        afterConnection();
+        //});
+
+        function afterConnection() {
+          let sql = "SELECT * FROM department";
+          //WHERE (title = 'Marketing Intern' OR salary > 50000) ORDER BY salary ASC";
+          connection.query(sql, function(err, res) {
+            if (err) throw err;
+            //console.log(res);
+            console.log("\n");
+            console.table(res);
+          });
+        }
       } else if (response === "Return to the Main Menu") {
         welcome();
       }
@@ -77,54 +118,57 @@ function edit() {
   afterConnection();
   function afterConnection() {
     let sql = "SELECT title FROM role AS title";
+    let roleSql = "SELECT name FROM department AS name";
+    //let depSql = ;
 
-    //WHERE (title = 'Marketing Intern' OR salary > 50000) ORDER BY salary ASC";
-    connection.query(sql, function(err, res) {
-      if (err) throw err;
-      //console.log(res);
-      //console.log("\n");
-
-      //array = [];
-
-      Object.keys(res).forEach(function(key) {
-        var test = "";
-        var row = res[key];
-        var test = row.title;
-        addArray.push(test);
+    inquirer
+      .prompt([
+        {
+          type: "list",
+          name: "edit",
+          message: "Please select from the options below",
+          choices: [
+            "Add employee",
+            "Add position",
+            "Add department",
+            "Return to the Main Menu"
+          ]
+        }
+      ])
+      .then(answers => {
+        var response = answers.edit;
+        if (response === "Add employee") {
+          //console.log("Here are the employees");
+          addEmployee();
+          //Welcome();
+        } else if (response === "Add position") {
+          //console.log("Here are the roles");
+          addPosition();
+          //encounter2a();
+        } else if (response === "Add department") {
+          console.log("Here are the departments");
+          addDepartment();
+        } else if (response === "Return to the Main Menu") {
+          welcome();
+        }
       });
-      console.log(addArray);
 
-      inquirer
-        .prompt([
-          {
-            type: "list",
-            name: "edit",
-            message: "Please select from the options below",
-            choices: [
-              "Add employee",
-              "Add position",
-              "Add department",
-              "Return to the Main Menu"
-            ]
-          }
-        ])
-        .then(answers => {
-          var response = answers.edit;
-          if (response === "Add employee") {
-            //console.log(addArray);
-            addEmployee();
-            //Welcome();
-          } else if (response === "Add position") {
-            console.log("Here are the roles");
-            //encounter2a();
-          } else if (response === "Add department") {
-            console.log("Here are the departments");
-          } else if (response === "Return to the Main Menu") {
-            welcome();
-          }
+    function addEmployee() {
+      //WHERE (title = 'Marketing Intern' OR salary > 50000) ORDER BY salary ASC";
+      connection.query(sql, function(err, res) {
+        if (err) throw err;
+        //console.log(res);
+        //console.log("\n");
+
+        //array = [];
+
+        Object.keys(res).forEach(function(key) {
+          var test = "";
+          var row = res[key];
+          var test = row.title;
+          addArray.push(test);
         });
-
-      function addEmployee() {
+        //console.log(addArray);
         inquirer
           .prompt([
             {
@@ -167,8 +211,125 @@ function edit() {
             //console.log(answers.last_name);
             //console.log(answers.role);
           });
-      }
-    });
+      });
+    }
+    function addPosition() {
+      connection.query(roleSql, function(err, res) {
+        if (err) throw err;
+        //console.log(res);
+        //console.log("\n");
+
+        //array = [];
+
+        Object.keys(res).forEach(function(key) {
+          var test = "";
+          var row = res[key];
+          var test = row.name;
+          roleArray.push(test);
+        });
+        inquirer
+          .prompt([
+            {
+              type: "input",
+              name: "title",
+              message: "What is the position you would like to add?"
+            },
+            {
+              type: "input",
+              name: "salary",
+              message: "What is the salary for this position?"
+            },
+            {
+              type: "list",
+              name: "department",
+              message: "Which department will this position be added to?",
+              choices: roleArray
+            }
+          ])
+          .then(answers => {
+            addPositionData();
+            function addPositionData() {
+              var departmentName = answers.department;
+              var sqlEmployee =
+                "INSERT INTO role(title, salary, department_id) VALUES('" +
+                answers.title +
+                "', " +
+                answers.salary +
+                ", (SELECT id FROM department WHERE name = '" +
+                departmentName +
+                "'));";
+
+              connection.query(sqlEmployee, function(err, res) {
+                if (err) throw err;
+                //console.log(res);
+                console.table(res);
+              });
+            }
+            //console.log(answers.first_name);
+            //console.log(answers.last_name);
+            //console.log(answers.role);
+          });
+      });
+    }
+
+    function addDepartment() {
+      connection.query(roleSql, function(err, res) {
+        if (err) throw err;
+        //console.log(res);
+        //console.log("\n");
+
+        //array = [];
+
+        Object.keys(res).forEach(function(key) {
+          var test = "";
+          var row = res[key];
+          var test = row.name;
+          roleArray.push(test);
+        });
+        inquirer
+          .prompt([
+            {
+              type: "input",
+              name: "title",
+              message: "What is the position you would like to add?"
+            },
+            {
+              type: "input",
+              name: "salary",
+              message: "What is the salary for this position?"
+            },
+            {
+              type: "list",
+              name: "department",
+              message: "Which department will this position be added to?",
+              choices: roleArray
+            }
+          ])
+          .then(answers => {
+            addPositionData();
+            function addPositionData() {
+              var departmentName = answers.department;
+              var sqlEmployee =
+                "INSERT INTO role(title, salary, department_id) VALUES('" +
+                answers.title +
+                "', " +
+                answers.salary +
+                ", (SELECT id FROM department WHERE name = '" +
+                departmentName +
+                "'));";
+
+              connection.query(sqlEmployee, function(err, res) {
+                if (err) throw err;
+                //console.log(res);
+                console.table(res);
+              });
+            }
+            //console.log(answers.first_name);
+            //console.log(answers.last_name);
+            //console.log(answers.role);
+          });
+      });
+    }
   }
 }
 
