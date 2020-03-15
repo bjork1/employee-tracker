@@ -40,7 +40,7 @@ inquirer
         "View all roles",
         "View all departments",
         "Add employee",
-        "Add role",
+        "Add position",
         "Add department"
       ]
     }
@@ -133,9 +133,46 @@ inquirer
           }
         ])
         .then(answers => {
-          console.log(answers.first_name);
-          console.log(answers.last_name);
-          console.log(answers.role);
+          let result = "";
+          if (answers.role === "Market Analyst") {
+            result = 1;
+          }
+          if (answers.role === "Marketing Intern") {
+            result = 2;
+          }
+          if (answers.role === "Marketing Manager") {
+            result = 3;
+          }
+          if (answers.role === "Social Media Specialist") {
+            result = 4;
+          }
+          if (answers.role === "Operations Manager") {
+            result = 5;
+          }
+          if (answers.role === "Operations Analyst") {
+            result = 6;
+          }
+          if (answers.role === "Customer Service Rep") {
+            result = 7;
+          }
+          if (answers.role === "Accounting Manager") {
+            result = 8;
+          }
+          if (answers.role === "Junior Accountant") {
+            result = 9;
+          }
+          if (answers.role === "Product Owner") {
+            result = 10;
+          }
+          if (answers.role === "Scrum Master") {
+            result = 11;
+          }
+          if (answers.role === "Software Developer") {
+            result = 12;
+          }
+          if (answers.role === "Project Manager") {
+            result = 13;
+          }
 
           connection.connect(function(err) {
             if (err) throw err;
@@ -145,13 +182,109 @@ inquirer
 
           function afterConnection() {
             let sql =
-              "INSERT INTO employee(first_name, last_name, role_id) VALUES(" +
+              "INSERT INTO employee(first_name, last_name, role_id) VALUES('" +
               answers.first_name +
-              "," +
+              "', '" +
               answers.last_name +
-              "," +
-              answers.role +
+              "', " +
+              result +
               ");";
+            //WHERE (title = 'Marketing Intern' OR salary > 50000) ORDER BY salary ASC";
+            connection.query(sql, function(err, res) {
+              if (err) throw err;
+              //console.log(res);
+              console.table(res);
+            });
+          }
+        });
+    }
+
+    //Add Position
+
+    if (answers.dropdown === "Add position") {
+      inquirer
+        .prompt([
+          {
+            type: "input",
+            name: "title",
+            message: "What is the position you would like to add?"
+          },
+          {
+            type: "input",
+            name: "salary",
+            message: "What is the salary for this position?"
+          },
+          {
+            type: "list",
+            name: "department",
+            message: "Which department will this position be added to?",
+            choices: ["Marketing", "Operations", "Accounting", "Scrum Team"]
+          }
+        ])
+        .then(answers => {
+          let result = "";
+          if (answers.department === "Marketing") {
+            result = 1;
+          }
+          if (answers.department === "Operations") {
+            result = 2;
+          }
+          if (answers.department === "Accounting") {
+            result = 3;
+          }
+          if (answers.department === "Scrum Team") {
+            result = 4;
+          }
+
+          connection.connect(function(err) {
+            if (err) throw err;
+            //console.log("connected as id " + connection.threadId);
+            afterConnection();
+          });
+
+          function afterConnection() {
+            let sql =
+              "INSERT INTO role(title, salary, department_id) VALUES('" +
+              answers.title +
+              "', " +
+              answers.salary +
+              ", " +
+              result +
+              ");";
+
+            //WHERE (title = 'Marketing Intern' OR salary > 50000) ORDER BY salary ASC";
+            connection.query(sql, function(err, res) {
+              if (err) throw err;
+              //console.log(res);
+              console.table(res);
+            });
+          }
+        });
+    }
+
+    //Add Department
+
+    if (answers.dropdown === "Add department") {
+      inquirer
+        .prompt([
+          {
+            type: "input",
+            name: "department",
+            message: "What is the name of the department you would like to add?"
+          }
+        ])
+        .then(answers => {
+          connection.connect(function(err) {
+            if (err) throw err;
+            //console.log("connected as id " + connection.threadId);
+            afterConnection();
+          });
+
+          function afterConnection() {
+            let sql =
+              "INSERT INTO department(name) VALUES('" +
+              answers.department +
+              "');";
             //WHERE (title = 'Marketing Intern' OR salary > 50000) ORDER BY salary ASC";
             connection.query(sql, function(err, res) {
               if (err) throw err;
