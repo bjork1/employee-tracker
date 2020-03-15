@@ -63,7 +63,7 @@ function app() {
             if (err) throw err;
             //console.log(res);
             console.log("\n");
-            console.table(res);
+            //console.table(res);
           });
         }
 
