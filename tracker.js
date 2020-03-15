@@ -11,31 +11,8 @@ var connection = mysql.createConnection({
 connection.connect(function(err) {
   if (err) throw err;
 });
+addArray = [];
 
-afterConnection();
-//});
-
-function afterConnection() {
-  let sql = "SELECT title FROM role AS title";
-
-  //WHERE (title = 'Marketing Intern' OR salary > 50000) ORDER BY salary ASC";
-  connection.query(sql, function(err, res) {
-    if (err) throw err;
-    //console.log(res);
-    console.log("\n");
-
-    Object.keys(res).forEach(function(key) {
-      var row = res[key];
-      console.log(row.title);
-    });
-
-    /*
-    var string = JSON.stringify(res);
-    console.log(string);
-
-    */
-  });
-}
 //Inquirer
 ("use strict");
 var inquirer = require("inquirer");
@@ -97,53 +74,86 @@ function view() {
 }
 
 function edit() {
-  inquirer
-    .prompt([
-      {
-        type: "list",
-        name: "edit",
-        message: "Please select from the options below",
-        choices: [
-          "Add employee",
-          "Add position",
-          "Add department",
-          "Return to the Main Menu"
-        ]
-      }
-    ])
-    .then(answers => {
-      var response = answers.view;
-      if (response === "Add employee") {
-        addEmployee();
-        //Welcome();
-      } else if (response === "Add position") {
-        console.log("Here are the roles");
-        //encounter2a();
-      } else if (response === "Add department") {
-        console.log("Here are the departments");
-      } else if (response === "Return to the Main Menu") {
-        welcome();
+  afterConnection();
+  function afterConnection() {
+    let sql = "SELECT title FROM role AS title";
+
+    //WHERE (title = 'Marketing Intern' OR salary > 50000) ORDER BY salary ASC";
+    connection.query(sql, function(err, res) {
+      if (err) throw err;
+      //console.log(res);
+      //console.log("\n");
+
+      //array = [];
+
+      Object.keys(res).forEach(function(key) {
+        var test = "";
+        var row = res[key];
+        var test = row.title;
+        addArray.push(test);
+      });
+      console.log(addArray);
+
+      inquirer
+        .prompt([
+          {
+            type: "list",
+            name: "edit",
+            message: "Please select from the options below",
+            choices: [
+              "Add employee",
+              "Add position",
+              "Add department",
+              "Return to the Main Menu"
+            ]
+          }
+        ])
+        .then(answers => {
+          var response = answers.edit;
+          if (response === "Add employee") {
+            //console.log(addArray);
+            addEmployee();
+            //Welcome();
+          } else if (response === "Add position") {
+            console.log("Here are the roles");
+            //encounter2a();
+          } else if (response === "Add department") {
+            console.log("Here are the departments");
+          } else if (response === "Return to the Main Menu") {
+            welcome();
+          }
+        });
+
+      function addEmployee() {
+        inquirer
+          .prompt([
+            {
+              type: "input",
+              name: "first_name",
+              message: "What is the employees first name?"
+            },
+            {
+              type: "input",
+              name: "last_name",
+              message: "What is the employees last name?"
+            },
+            {
+              type: "list",
+              name: "role",
+              message: "What is the employees position?",
+              choices: addArray
+            }
+          ])
+          .then(answers => {
+            console.log(answers.first_name);
+          });
       }
     });
+  }
 }
 
-function addEmployee() {
-  inquirer.prompt([
-    {
-      type: "input",
-      name: "first_name",
-      message: "What is the employees first name?"
-    },
-    {
-      type: "input",
-      name: "last_name",
-      message: "What is the employees last name?"
-    },
-    {
-      type: "list",
-      name: "role",
-      message: "What is the employees position?",
-      choices: [
+/*
+      [
         "Market Analyst",
         "Marketing Intern",
         "Marketing Manager",
@@ -158,9 +168,7 @@ function addEmployee() {
         "Software Developer",
         "Project Manager"
       ]
-    }
-  ]);
-}
+      */
 
 function encounter2a() {
   inquirer.prompt(directionsPrompt).then(answers => {
@@ -198,4 +206,4 @@ function encounter2b() {
     });
 }
 
-//welcome();
+welcome();
