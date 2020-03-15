@@ -145,7 +145,27 @@ function edit() {
             }
           ])
           .then(answers => {
-            console.log(answers.first_name);
+            addEmployeeData();
+            function addEmployeeData() {
+              var position = answers.role;
+              var sqlEmployee =
+                "INSERT INTO employee(first_name, last_name, role_id) VALUES('" +
+                answers.first_name +
+                "', '" +
+                answers.last_name +
+                "', (SELECT id FROM role WHERE title = '" +
+                position +
+                "'));";
+
+              connection.query(sqlEmployee, function(err, res) {
+                if (err) throw err;
+                //console.log(res);
+                console.table(res);
+              });
+            }
+            //console.log(answers.first_name);
+            //console.log(answers.last_name);
+            //console.log(answers.role);
           });
       }
     });
