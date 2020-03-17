@@ -14,6 +14,7 @@ connection.connect(function(err) {
 addArray = [];
 roleArray = [];
 depArray = [];
+nameArray = [];
 
 //Inquirer
 ("use strict");
@@ -119,6 +120,7 @@ function edit() {
   function afterConnection() {
     let sql = "SELECT title FROM role AS title";
     let roleSql = "SELECT name FROM department AS name";
+    let nameSql = "SELECT * FROM employee;";
     //let depSql = ;
 
     inquirer
@@ -131,6 +133,7 @@ function edit() {
             "Add employee",
             "Add position",
             "Add department",
+            "Update employee position",
             "Return to the Main Menu"
           ]
         }
@@ -148,6 +151,9 @@ function edit() {
         } else if (response === "Add department") {
           console.log("Here are the departments");
           addDepartment();
+        } else if (response === "Update employee position") {
+          console.log("Update employee information below");
+          updatePosition();
         } else if (response === "Return to the Main Menu") {
           welcome();
         }
@@ -290,35 +296,86 @@ function edit() {
           .prompt([
             {
               type: "input",
-              name: "title",
-              message: "What is the position you would like to add?"
-            },
-            {
-              type: "input",
-              name: "salary",
-              message: "What is the salary for this position?"
-            },
-            {
-              type: "list",
               name: "department",
-              message: "Which department will this position be added to?",
-              choices: roleArray
+              message:
+                "What is the name of the department you would like to add?"
             }
           ])
           .then(answers => {
-            addPositionData();
-            function addPositionData() {
-              var departmentName = answers.department;
-              var sqlEmployee =
-                "INSERT INTO role(title, salary, department_id) VALUES('" +
-                answers.title +
-                "', " +
-                answers.salary +
-                ", (SELECT id FROM department WHERE name = '" +
-                departmentName +
+            addDepartmentData();
+            function addDepartmentData() {
+              //var departmentName = answers.department;
+              var sqlDep =
+                "INSERT INTO department(name) VALUES('" +
+                answers.department +
+                "');";
+
+              connection.query(sqlDep, function(err, res) {
+                if (err) throw err;
+                //console.log(res);
+                console.table(res);
+              });
+            }
+            //console.log(answers.first_name);
+            //console.log(answers.last_name);
+            //console.log(answers.role);
+          });
+      });
+    }
+
+    function updatePosition() {
+      connection.query(sql, function(err, res) {
+        if (err) throw err;
+        //console.log(res);
+        //console.log("\n");
+
+        //array = [];
+
+        Object.keys(res).forEach(function(key) {
+          var first = "";
+          var last = "";
+          var row = res[key];
+          var first = row.first_name;
+          var last = row.last_name;
+          nameArray.push(first + " " + last);
+        });
+
+        //console.log(roleArray);
+
+        Object.keys(res).forEach(function(key) {
+          var test = "";
+          var row = res[key];
+          var test = row.name;
+          roleArray.push(test);
+        });
+
+        inquirer
+          .prompt([
+            {
+              type: "list",
+              name: "profile",
+              message: "Select the employee you would like to update",
+              choices: nameArray //Choices array here
+            },
+            {
+              type: "list",
+              name: "new",
+              message: "Select the new position for the current employee",
+              choices: roleArray //positions
+            }
+          ])
+          .then(answers => {
+            updateEmployeeData();
+            function updateEmployeeData() {
+              //var departmentName = answers.department;
+              var updateSql =
+                "UPDATE role_id = (SELECT id FROM role WHERE title = '" +
+                answers.new +
+                "')WHERE first_name AND last_name = '" +
+                answers.profile +
                 "'));";
 
-              connection.query(sqlEmployee, function(err, res) {
+              connection.query(updateSql, function(err, res) {
                 if (err) throw err;
                 //console.log(res);
                 console.table(res);
@@ -350,41 +407,5 @@ function edit() {
         "Project Manager"
       ]
       */
-
-function encounter2a() {
-  inquirer.prompt(directionsPrompt).then(answers => {
-    var direction = answers.direction;
-    if (direction === "Forward") {
-      var output = "You find a painted wooden sign that says:";
-      output += " \n";
-      output += " ____  _____  ____  _____ \n";
-      output += "(_  _)(  _  )(  _ \\(  _  ) \n";
-      output += "  )(   )(_)(  )(_) ))(_)(  \n";
-      output += " (__) (_____)(____/(_____) \n";
-      console.log(output);
-    } else {
-      console.log("You cannot go that way");
-      encounter2a();
-    }
-  });
-}
-
-function encounter2b() {
-  inquirer
-    .prompt({
-      type: "list",
-      name: "weapon",
-      message: "Pick one",
-      choices: [
-        "Use the stick",
-        "Grab a large rock",
-        "Try and make a run for it",
-        "Attack the wolf unarmed"
-      ]
-    })
-    .then(() => {
-      console.log("The wolf mauls you. You die. The end.");
-    });
-}
 
 welcome();
