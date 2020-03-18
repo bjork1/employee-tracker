@@ -62,3 +62,11 @@ VALUES
 ('Will', 'Ferrell', 11,null),
 ('Jennifer', 'Lopez', 12, null),
 ('Michelle', 'Obama', 13, null);
+
+
+var updateSql =
+                "UPDATE role_id = (SELECT id FROM role WHERE title = '" +
+                answers.new +
+                "')WHERE first_name AND last_name = '" +
+                answers.profile +
+                "'));

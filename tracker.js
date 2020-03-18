@@ -324,7 +324,7 @@ function edit() {
     }
 
     function updatePosition() {
-      connection.query(sql, function(err, res) {
+      connection.query(nameSql, function(err, res) {
         if (err) throw err;
         //console.log(res);
         //console.log("\n");
@@ -333,47 +333,55 @@ function edit() {
 
         Object.keys(res).forEach(function(key) {
           var first = "";
-          var last = "";
+          //var last = "";
           var row = res[key];
           var first = row.first_name;
-          var last = row.last_name;
-          nameArray.push(first + " " + last);
+          //var last = row.last_name;
+          nameArray.push(first);
         });
 
         //console.log(roleArray);
 
-        Object.keys(res).forEach(function(key) {
-          var test = "";
-          var row = res[key];
-          var test = row.name;
-          roleArray.push(test);
-        });
+        //connection.query(nameSql, function(err, result) {
+        //if (err) throw err;
+        /*
+          Object.keys(result).forEach(function(key) {
+            var test = "";
+            var row = result[key];
+            var test = row.name;
+            roleArray.push(test);
+          });
+          */
 
         inquirer
           .prompt([
             {
               type: "list",
               name: "profile",
-              message: "Select the employee you would like to update",
+              message:
+                "Select the first name of the employee you would like to update",
               choices: nameArray //Choices array here
             },
             {
-              type: "list",
+              type: "input",
               name: "new",
-              message: "Select the new position for the current employee",
-              choices: roleArray //positions
+              message:
+                "Enter the role Id for the employees position. Please view the position database from the main menu to get this information."
+              //choices: roleArray //positions
             }
           ])
           .then(answers => {
             updateEmployeeData();
             function updateEmployeeData() {
               //var departmentName = answers.department;
+              //"SELECT * FROM employee";
+
               var updateSql =
-                "UPDATE role_id = (SELECT id FROM role WHERE title = '" +
+                "UPDATE employee SET role_id = " +
                 answers.new +
-                "')WHERE first_name AND last_name = '" +
+                " WHERE first_name = '" +
                 answers.profile +
-                "'));";
+                "'";
 
               connection.query(updateSql, function(err, res) {
                 if (err) throw err;
@@ -386,6 +394,7 @@ function edit() {
             //console.log(answers.role);
           });
       });
+      //});
     }
   }
 }
